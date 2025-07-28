@@ -12,6 +12,8 @@ internal sealed class CacheService(
     ILogger<CacheService> logger)
     : ICacheService
 {
+    
+    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(10);
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
@@ -30,7 +32,24 @@ internal sealed class CacheService(
             return default;
         }
     }
+    
+    public async Task<T> GetOrSetAsync<T>(string key, Func<CancellationToken, Task<T>> valueFactory, TimeSpan? expiration = null, CancellationToken cancellationToken = default)
+    {
+        var cachedValue = await GetAsync<T>(key, cancellationToken: cancellationToken);
 
+        if (cachedValue is not null)
+        {
+            return cachedValue;
+        }
+
+        var newCachedValue = await valueFactory(cancellationToken);
+
+        await SetAsync(key, newCachedValue, cancellationToken: cancellationToken);
+
+        return newCachedValue;
+    }
+    
+    
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken cancellationToken = default)
     {
         try
@@ -38,8 +57,8 @@ internal sealed class CacheService(
             var serializedValue = JsonSerializer.Serialize(value);
             
             var options = new DistributedCacheEntryOptions();
-            if (expiration.HasValue)
-                options.SetAbsoluteExpiration(expiration.Value);
+            
+            options.SetAbsoluteExpiration(expiration ?? DefaultExpiration);
 
             await cache.SetStringAsync(key, serializedValue, options, cancellationToken);
         }

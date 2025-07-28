@@ -4,6 +4,7 @@ using Domain.Constants;
 using Domain.Repositories;
 using Infrastructure.Caching;
 using Infrastructure.Data;
+using Infrastructure.Data.Interceptors;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

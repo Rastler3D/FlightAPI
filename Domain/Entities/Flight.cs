@@ -12,7 +12,7 @@ public sealed class Flight : Entity
     public DateTimeOffset Arrival { get; private set; }
     public FlightStatus Status { get; private set; }
 
-    private Flight() { } // EF Core
+    private Flight() { } 
 
     public Flight(
         string origin,
