@@ -13,7 +13,7 @@ Flight  Management API built with .NET 8, following Domain-Driven Design (DDD) p
 
 1. **Clone the repository**
    ```bash
-   git clone 
+   git clone https://github.com/Rastler3D/FlightAPI
    cd FlightStatus
    ```
 
