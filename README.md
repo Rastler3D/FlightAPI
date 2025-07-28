@@ -52,7 +52,7 @@ The application seeds with 8 sample flights covering major US routes with differ
 ### Flights
 - `GET /api/flights` - Get all flights (with filtering)
 - `POST /api/flights` - Create flight (Moderator only)
-- `PUT /api/flights/{id}/status` - Update flight status (Moderator only)
+- `PUT /api/flights/status` - Update flight status (Moderator only)
 
 ## 🏗️ Architecture
 
