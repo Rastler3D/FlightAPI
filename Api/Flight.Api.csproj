@@ -4,10 +4,11 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Flight.ApiService</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Application\Flight.Application.csproj" />
+        <ProjectReference Include="..\Infrastructure\Flight.Infrastructure.csproj" />
         <ProjectReference Include="..\ServiceDefaults\Flight.ServiceDefaults.csproj" />
     </ItemGroup>
 

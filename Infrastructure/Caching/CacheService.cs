@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Application.Common.Abstractions.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;

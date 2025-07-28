@@ -1,6 +1,10 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Abstractions.Caching;
+using Application.Common.Interfaces;
 using Domain.Constants;
+using Domain.Repositories;
+using Infrastructure.Caching;
 using Infrastructure.Data;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -54,6 +58,13 @@ public static class DependencyInjection
 
 
         builder.Services.AddSingleton(TimeProvider.System);
+        
+       
+        builder.Services.AddScoped<ICacheService, CacheService>();
+        builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IPasswordService, PasswordService>();
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
      
 
        
