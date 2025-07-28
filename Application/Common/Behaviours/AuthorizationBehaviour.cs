@@ -2,6 +2,7 @@
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.Common.Security;
+using UnauthorizedAccessException = Application.Common.Exceptions.UnauthorizedAccessException;
 
 namespace Application.Common.Behaviours;
 

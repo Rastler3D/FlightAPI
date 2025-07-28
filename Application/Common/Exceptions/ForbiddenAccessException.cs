@@ -1,6 +1,11 @@
 ﻿namespace Application.Common.Exceptions;
 
-public class ForbiddenAccessException : Exception
+public sealed class ForbiddenAccessException : Exception
 {
-    public ForbiddenAccessException() : base() { }
+    public ForbiddenAccessException() : base("User does not have required permissions") { }
+    
+    public ForbiddenAccessException(string message) : base(message) { }
+    
+    public ForbiddenAccessException(string message, Exception innerException) 
+        : base(message, innerException) { }
 }

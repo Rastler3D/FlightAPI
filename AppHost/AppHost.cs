@@ -2,6 +2,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var database = builder.AddPostgres("database")
     .WithPgAdmin()
+    .WithDataVolume()
     .AddDatabase("flight-db");
 
 var cache = builder.AddRedis("cache");

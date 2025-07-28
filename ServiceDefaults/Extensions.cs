@@ -104,7 +104,7 @@ public static class Extensions
             // Add a default liveness check to ensure app is responsive
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"])
             .AddRedis(builder.Configuration.GetConnectionString("cache")!)
-            .AddNpgSql(builder.Configuration.GetConnectionString("database")!);
+            .AddNpgSql(builder.Configuration.GetConnectionString("flight-db")!);
 
         return builder;
     }
