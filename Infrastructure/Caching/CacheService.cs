@@ -1,10 +1,8 @@
-﻿using System.Collections.Concurrent;
-using System.Text.Json;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
-namespace Infrastructure.Cache;
+namespace Infrastructure.Caching;
 
 internal sealed class CacheService(IConnectionMultiplexer connection, ILogger<CacheService> logger) : ICacheService
 {
