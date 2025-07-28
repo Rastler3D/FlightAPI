@@ -13,10 +13,4 @@ public sealed class Role : Entity
     {
         Code = code;
     }
-
-    public static class Codes
-    {
-        public const string User = "User";
-        public const string Moderator = "Moderator";
-    }
 }

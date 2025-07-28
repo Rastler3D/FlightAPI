@@ -20,4 +20,9 @@
       <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Application\Flight.Application.csproj" />
+      <ProjectReference Include="..\Domain\Flight.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
