@@ -1,91 +1,90 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace Infrastructure.Caching;
 
-internal sealed class CacheService(IConnectionMultiplexer connection, ILogger<CacheService> logger) : ICacheService
+internal sealed class CacheService(
+    IDistributedCache cache,
+    IConnectionMultiplexer redis,
+    ILogger<CacheService> logger)
+    : ICacheService
 {
-    private readonly IDatabase _database = connection.GetDatabase();
 
-    public async Task<T?> GetAsync<T>(string key)
-        where T : class
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         try
         {
-            var resultString = await _database.StringGetAsync(key);
-            var result = !string.IsNullOrEmpty(resultString)
-                ? JsonSerializer.Deserialize<T>(resultString!)
-                : null;
+            var cachedValue = await cache.GetStringAsync(key, cancellationToken);
+            
+            if (string.IsNullOrEmpty(cachedValue))
+                return default;
 
-            return result;
+            return JsonSerializer.Deserialize<T>(cachedValue);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Ошибка при получение значения {CacheKey} из кэша", key);
-
-            return null;
+            logger.LogError(ex, "Error retrieving from cache with key {Key}", key);
+            return default;
         }
     }
 
-    public async Task<T> GetOrSetAsync<T>(string key, Func<Task<T>> valueFactory) where T : class
-    {
-        var cachedValue = await GetAsync<T>(key);
-
-        if (cachedValue is not null)
-        {
-            return cachedValue;
-        }
-
-        var newCachedValue = await valueFactory();
-
-        await SetAsync(key, newCachedValue);
-
-        return newCachedValue;
-    }
-
-    public async Task<bool> SetAsync<T>(string key, T value, TimeSpan? expiry = null) where T : class
+    public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var redisValue = JsonSerializer.Serialize(value);
+            var serializedValue = JsonSerializer.Serialize(value);
+            
+            var options = new DistributedCacheEntryOptions();
+            if (expiration.HasValue)
+                options.SetAbsoluteExpiration(expiration.Value);
 
-            return await _database.StringSetAsync(key, redisValue, expiry);
+            await cache.SetStringAsync(key, serializedValue, options, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Не удалось сохранить значения {CacheKey} в кэш", key);
-
-            return false;
+            logger.LogError(ex, "Error setting cache with key {Key}", key);
         }
     }
 
-    public async Task<bool> RemoveAsync(string key)
+    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _database.KeyDeleteAsync(key);
+            await cache.RemoveAsync(key, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Не удалось удалить значение {CacheKey} из кэша", key);
-            return false;
+            logger.LogError(ex, "Error removing from cache with key {Key}", key);
         }
     }
+    
 
-    public async Task<long> RemoveByPrefixAsync(string prefix, CancellationToken cancellationToken = default)
+    public async Task RemoveByPatternAsync(string pattern, CancellationToken cancellationToken = default)
     {
-        var endPoint = connection.GetEndPoints().First();
-        var server = connection.GetServer(endPoint);
-        var pattern = $"{prefix}*";
-        var keys = new List<RedisKey>();
-        ;
-
-        await foreach (var key in server.KeysAsync(pattern: pattern).WithCancellation(cancellationToken))
+        try
         {
-            keys.Add(key);
+            var database = redis.GetDatabase();
+            var server = redis.GetServer(redis.GetEndPoints().First());
+            
+            var keyStream = server.KeysAsync(pattern: pattern);
+            
+            var keys = new List<RedisKey>();
+            
+            await foreach (var key in keyStream.WithCancellation(cancellationToken))
+            {
+                keys.Add(key);
+            }
+            if (keys.Count > 0)
+            {
+                await database.KeyDeleteAsync(keys.ToArray());
+                logger.LogInformation("Removed {Count} keys matching pattern {Pattern}", keys.Count, pattern);
+            }
         }
-
-        return await _database.KeyDeleteAsync(keys.ToArray());
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error removing from cache with pattern {Pattern}", pattern);
+        }
     }
 }

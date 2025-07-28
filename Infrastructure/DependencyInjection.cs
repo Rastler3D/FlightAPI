@@ -28,6 +28,18 @@ public static class DependencyInjection
 
 
         builder.EnrichNpgsqlDbContext<ApplicationDbContext>();
+        
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = builder.Configuration.GetConnectionString("cache");
+        });
+
+        
+        builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(provider =>
+        {
+            var connectionString = builder.Configuration.GetConnectionString("cache");
+            return StackExchange.Redis.ConnectionMultiplexer.Connect(connectionString!);
+        });
 
 
         builder.Services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
