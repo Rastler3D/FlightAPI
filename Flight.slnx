@@ -1,0 +1,9 @@
+﻿<Solution>
+  <Project Path="Api\Flight.Api.csproj" Type="Classic C#" />
+  <Project Path="AppHost\Flight.AppHost.csproj" Type="Classic C#" />
+  <Project Path="Application\Flight.Application.csproj" Type="Classic C#" />
+  <Project Path="Domain\Flight.Domain.csproj" Type="Classic C#" />
+  <Project Path="Infrastructure\Flight.Infrastructure.csproj" Type="Classic C#" />
+  <Project Path="ServiceDefaults\Flight.ServiceDefaults.csproj" Type="Classic C#" />
+  <Project Path="Tests\Flight.Tests.csproj" Type="Classic C#" />
+</Solution>
