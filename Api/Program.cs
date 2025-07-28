@@ -22,8 +22,12 @@ builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 
 
-builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration));
+builder.Host.UseSerilog((context, services, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services) 
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.OpenTelemetry());
 
 builder.Services.AddScoped<IUser, CurrentUser>();
 
